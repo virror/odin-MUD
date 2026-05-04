@@ -1,0 +1,43 @@
+{
+	"version": "2.0.0",
+	"tasks": [
+		{
+			"type": "shell",
+			"label": "CMake: build client",
+			"command": "../Odin/odin.exe",
+			"args": [
+                "run",
+                "./client",
+				"-vet-unused-variables",
+                "-vet-shadowing",
+                "-vet-using-stmt",
+                "-strict-style",
+				"-o:speed"
+            ],
+			"group": {
+				"kind": "build",
+				"isDefault": false
+			},
+			"problemMatcher": []
+		},
+		{
+			"type": "shell",
+			"label": "CMake: build server",
+			"command": "../Odin/odin.exe",
+			"args": [
+				"run",
+				"./server",
+				"-vet-unused-variables",
+				"-vet-shadowing",
+				"-vet-using-stmt",
+				"-strict-style",
+				"-o:speed"
+			],
+			"group": {
+				"kind": "build",
+				"isDefault": false
+			},
+			"problemMatcher": []
+		}
+	]
+}
