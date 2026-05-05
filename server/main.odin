@@ -3,6 +3,7 @@ package main
 import "core:fmt"
 import "core:net"
 import "core:thread"
+import "core:strings"
 
 send_msg2 :: proc(sock: i64, msg: string) {
 	send_msg((net.TCP_Socket(sock)), msg)
@@ -35,7 +36,7 @@ handle_msg :: proc(sock: net.TCP_Socket) {
 
 		switch player.status {
 		case Player_status.Username:
-			player.name = input
+			player.name = strings.clone(input)
 			players_load(player)
 			send_msg(sock, "Enter password:")
 			player.socket = i64(sock)

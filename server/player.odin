@@ -21,7 +21,11 @@ Player :: struct {
 players: map[i64]Player
 
 players_save :: proc(player: ^Player) {
-    file, err := os.open(player.name, os.O_WRONLY | os.O_CREATE | os.O_TRUNC)
+    if(!os.exists("saves")) {
+        os.make_directory("saves")
+    }
+    path := fmt.aprintf("saves/%s", player.name)
+    file, err := os.open(path, os.O_WRONLY | os.O_CREATE | os.O_TRUNC)
     if err != nil {
         fmt.println("Error opening file:", err)
         return
@@ -35,11 +39,13 @@ players_save :: proc(player: ^Player) {
     }
     os.write(file, data)
     os.close(file)
+    delete(path)
 }
 
 players_load :: proc(player: ^Player) -> bool {
     fmt.println(player.name)
-    data, err := os.read_entire_file_from_filename(player.name)
+    path := fmt.aprintf("/saves/%s", player.name)
+    data, err := os.read_entire_file_from_filename(path)
     if !err {
         fmt.println("Error reading file:", err)
         return false
@@ -51,5 +57,6 @@ players_load :: proc(player: ^Player) -> bool {
         return false
     }
     player^ = json_data[0]
+    delete(path)
     return true
 }
