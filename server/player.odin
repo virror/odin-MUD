@@ -20,6 +20,14 @@ Player :: struct {
 
 players: map[i64]Player
 
+players_create :: proc() -> Player {
+    return Player {
+		name = "Tmp",
+		current_room = 1,
+		status = Player_status.Username,
+	}
+}
+
 players_save :: proc(player: ^Player) {
     if(!os.exists("saves")) {
         os.make_directory("saves")
@@ -43,7 +51,6 @@ players_save :: proc(player: ^Player) {
 }
 
 players_load :: proc(player: ^Player) -> bool {
-    fmt.println(player.name)
     path := fmt.aprintf("/saves/%s", player.name)
     file, err := os.open(path, os.O_RDONLY)
     if err != nil {

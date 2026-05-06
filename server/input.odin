@@ -60,10 +60,7 @@ input_say :: proc(data: string, player: ^Player) -> string {
     if !ok {
         return "Usage: say <message>"
     }
-    for _, p in rooms[player.current_room].players {
-        if p.socket != player.socket {
-            send_msg2(p.socket, fmt.aprintf("%s says: %s", player.name, msg))
-        }
-    }
+    message := fmt.aprintf("%s says: %s", player.name, msg)
+    rooms_send(player, message)
     return fmt.aprintf("You say: %s", msg)
 }

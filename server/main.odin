@@ -20,11 +20,7 @@ handle_msg :: proc(sock: net.TCP_Socket) {
 	buffer: [256]u8
 
 	send_msg(sock, "Welcome to the MUD! Please enter your username:")
-	players[i64(sock)] = Player {
-		name = "Tmp",
-		current_room = 1,
-		status = Player_status.Username,
-	}
+	players[i64(sock)] = players_create()
 
 	for {
 		bytes_recv, err_recv := net.recv_tcp(sock, buffer[:])
@@ -68,7 +64,7 @@ handle_msg :: proc(sock: net.TCP_Socket) {
 	net.close(sock)
 }
 
-tcp_echo_server :: proc(ip: string, port: int) {
+tcp_mud_server :: proc(ip: string, port: int) {
 	local_addr, ok := net.parse_ip4_address(ip)
 	if !ok {
 		fmt.println("Failed to parse IP address")
@@ -99,5 +95,5 @@ tcp_echo_server :: proc(ip: string, port: int) {
 main :: proc() {
 	input_init()
 	rooms_init()
-    tcp_echo_server("127.0.0.1", 8080)
+    tcp_mud_server("127.0.0.1", 8080)
 }

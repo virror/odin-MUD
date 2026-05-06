@@ -32,6 +32,15 @@ rooms_init :: proc() {
     }
 }
 
+rooms_send :: proc(player: ^Player, message: string) {
+    for _, p in rooms[player.current_room].players {
+        if p.socket != player.socket {
+            send_msg2(p.socket, message)
+        }
+    }
+    delete(message)
+}
+
 rooms_move :: proc(player: ^Player, direction: int) -> string {
     current_room := rooms[player.current_room]
     delete_key(&current_room.players, player.name)
