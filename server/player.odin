@@ -45,9 +45,14 @@ players_save :: proc(player: ^Player) {
 players_load :: proc(player: ^Player) -> bool {
     fmt.println(player.name)
     path := fmt.aprintf("/saves/%s", player.name)
-    data, err := os.read_entire_file_from_filename(path)
-    if !err {
-        fmt.println("Error reading file:", err)
+    file, err := os.open(path, os.O_RDONLY)
+    if err != nil {
+        fmt.println("Error opening file:", err)
+        return false
+    }
+    data, err2 := os.read_entire_file_from_file(file, context.allocator)
+    if err2 != nil {
+        fmt.println("Error reading file:", err2)
         return false
     }
     json_data: [1]Player
@@ -58,5 +63,6 @@ players_load :: proc(player: ^Player) -> bool {
     }
     player^ = json_data[0]
     delete(path)
+    delete(data, context.allocator)
     return true
 }
