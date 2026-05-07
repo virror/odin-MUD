@@ -62,6 +62,8 @@ rooms_send :: proc(player: ^Player, message: string) {
 rooms_move :: proc(player: ^Player, direction: int) -> string {
     current_room := rooms[player.current_room]
     delete_key(&current_room.players, player.name)
+    message := fmt.aprintf("%s leaves the room", player.name)
+    rooms_send(player, message)
     next_room_index: int
     switch direction {
     case 0:
@@ -78,5 +80,7 @@ rooms_move :: proc(player: ^Player, direction: int) -> string {
     }
     player.current_room = next_room_index
     rooms[next_room_index].players[player.name] = player
+    message = fmt.aprintf("%s enters the room", player.name)
+    rooms_send(player, message)
     return strings.clone(rooms[next_room_index].description)
 }
