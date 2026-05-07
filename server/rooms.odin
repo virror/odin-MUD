@@ -6,6 +6,7 @@ import "core:strings"
 Room :: struct {
     description: string,
     players: map[string]^Player,
+    entities: map[string]Entity,
     north: int,
     south: int,
     east: int,
@@ -18,19 +19,35 @@ rooms_init :: proc() {
     rooms[0] = Room {
         description = "Dummy room.",
     }
+
     rooms[1] = Room {
-        description = "You are in a big hall. There are exits to the north and south.",
+        description = "You are in a big hall. There are exits to the north and south.\nThere is a stick on the ground.",
         north = 2,
         south = 3,
     }
+    stick: Entity = Item {
+        name = "Stick",
+        description = "A simple stick. It looks like it could be used as a weapon.",
+    }
+    rooms[1].entities["stick"] = stick
+
     rooms[2] = Room {
         description = "You are in a small room. There is an exit to the south.",
         south = 1,
     }
+    
     rooms[3] = Room {
-        description = "You are in a dark cave. There is an exit to the north.",
+        description = "You are in a dark cave. There is an exit to the north.\nThere is a goblin here!",
         north = 1,
     }
+    goblin: Entity = Enemy {
+        name = "Goblin",
+        description = "A small, green goblin. It looks hostile.",
+        hp = 30,
+        damage = 5,
+        attack_speed = 2,
+    }
+    rooms[3].entities["goblin"] = goblin
 }
 
 rooms_send :: proc(player: ^Player, message: string) {

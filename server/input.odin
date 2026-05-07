@@ -16,6 +16,8 @@ input_init :: proc() {
     m["west"] = input_west
     m["say"] = input_say
     m["char"] = input_char
+    m["take"] = input_take
+    m["attack"] = input_attack
 }
 
 input_handle :: proc(sock: net.TCP_Socket, data: []u8) {
@@ -69,4 +71,44 @@ input_say :: proc(data: string, player: ^Player) -> string {
 input_char :: proc(data: string, player: ^Player) -> string {
     return fmt.aprintf("+------------------+\n| Name: %s\n| HP: %d/%d\n| Damage: %d\n| Attack Speed: %d\n| Experience: %d/1000\n+------------------+",
         player.name, player.hp, player.max_hp, player.damage, player.attack_speed, player.experience)
+}
+
+input_take :: proc(data: string, player: ^Player) -> string {
+    entity_name, ok := strings.substring(data, 5, len(data))
+    if !ok {
+        return "Usage: take <item>"
+    }
+    current_room := rooms[player.current_room]
+    entity, exists := current_room.entities[entity_name]
+    fmt.println(current_room)
+    if !exists {
+        return fmt.aprintf("There is no %s here.", entity_name)
+    }
+    item, val_ok := entity.(Item)
+    if !val_ok {
+        return fmt.aprintf("You can't take the %s.", entity_name)
+    }
+
+    delete_key(&current_room.entities, entity_name)
+    return fmt.aprintf("You take the %s.", item.name)
+}
+
+input_attack :: proc(data: string, player: ^Player) -> string {
+    entity_name, ok := strings.substring(data, 7, len(data))
+    if !ok {
+        return "Usage: attack <enemy>"
+    }
+    current_room := rooms[player.current_room]
+    entity, exists := current_room.entities[entity_name]
+    if !exists {
+        return fmt.aprintf("There is no %s here.", entity_name)
+    }
+    enemy, val_ok := entity.(Enemy)
+    if !val_ok {
+        return fmt.aprintf("You can't attack the %s.", entity_name)
+    }
+    if enemy.hp <= 0 {
+        return fmt.aprintf("The %s is already dead.", entity_name)
+    }
+    return fmt.aprintf("You attack the %s. It has %d HP left.", entity_name, enemy.hp)
 }
