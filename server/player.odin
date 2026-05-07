@@ -16,6 +16,11 @@ Player :: struct {
     current_room: int,
     status: Player_status,
     name: string,
+    max_hp: int,
+    hp: int,
+    damage: int,
+    attack_speed: int,
+    experience: int,
 }
 
 players: map[i64]Player
@@ -25,6 +30,11 @@ players_create :: proc() -> Player {
 		name = "Tmp",
 		current_room = 1,
 		status = Player_status.Username,
+		max_hp = 100,
+		hp = 100,
+		damage = 10,
+        attack_speed = 1,
+        experience = 0,
 	}
 }
 

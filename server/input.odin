@@ -15,6 +15,7 @@ input_init :: proc() {
     m["east"] = input_east
     m["west"] = input_west
     m["say"] = input_say
+    m["char"] = input_char
 }
 
 input_handle :: proc(sock: net.TCP_Socket, data: []u8) {
@@ -27,16 +28,16 @@ input_handle :: proc(sock: net.TCP_Socket, data: []u8) {
     }
     msg := elem(string(data), &players[i64(sock)])
     send_msg(sock, msg)
-    //delete(msg)
+    delete(msg)
 }
 
 input_quit :: proc(data: string, player: ^Player) -> string {
     player.status = Player_status.Quitting
-    return "Do you want to quit? (yes/no)"
+    return strings.clone("Do you want to quit? (yes/no)")
 }
 
 input_look :: proc(data: string, player: ^Player) -> string {
-	return rooms[player.current_room].description
+	return strings.clone(rooms[player.current_room].description)
 }
 
 input_north :: proc(data: string, player: ^Player) -> string {
@@ -63,4 +64,9 @@ input_say :: proc(data: string, player: ^Player) -> string {
     message := fmt.aprintf("%s says: %s", player.name, msg)
     rooms_send(player, message)
     return fmt.aprintf("You say: %s", msg)
+}
+
+input_char :: proc(data: string, player: ^Player) -> string {
+    return fmt.aprintf("+------------------+\n| Name: %s\n| HP: %d/%d\n| Damage: %d\n| Attack Speed: %d\n| Experience: %d/1000\n+------------------+",
+        player.name, player.hp, player.max_hp, player.damage, player.attack_speed, player.experience)
 }

@@ -1,6 +1,7 @@
 package main
 
 import "core:fmt"
+import "core:strings"
 
 Room :: struct {
     description: string,
@@ -60,5 +61,5 @@ rooms_move :: proc(player: ^Player, direction: int) -> string {
     }
     player.current_room = next_room_index
     rooms[next_room_index].players[player.name] = player
-    return rooms[next_room_index].description
+    return strings.clone(rooms[next_room_index].description)
 }
