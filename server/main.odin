@@ -39,7 +39,7 @@ handle_msg :: proc(sock: net.TCP_Socket) {
 			player.status = Player_status.Password
 		case Player_status.Password:
 			player.status = Player_status.Playing
-			send_msg(sock, rooms[player.current_room].description)
+			send_msg(sock, rooms_description(player.current_room, player))
 			rooms[player.current_room].players[player.name] = player
 		case Player_status.Playing:
 			received := buffer[:bytes_recv]

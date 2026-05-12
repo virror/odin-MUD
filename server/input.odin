@@ -39,7 +39,7 @@ input_quit :: proc(data: string, player: ^Player) -> string {
 }
 
 input_look :: proc(data: string, player: ^Player) -> string {
-	return strings.clone(rooms[player.current_room].description)
+	return rooms_description(player.current_room, player)
 }
 
 input_north :: proc(data: string, player: ^Player) -> string {

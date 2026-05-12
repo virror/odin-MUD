@@ -21,7 +21,7 @@ rooms_init :: proc() {
     }
 
     rooms[1] = Room {
-        description = "You are in a big hall. There are exits to the north and south.\nThere is a stick on the ground.",
+        description = "You are in a big hall. There are exits to the north and south.",
         north = 2,
         south = 3,
     }
@@ -37,7 +37,7 @@ rooms_init :: proc() {
     }
     
     rooms[3] = Room {
-        description = "You are in a dark cave. There is an exit to the north.\nThere is a goblin here!",
+        description = "You are in a dark cave. There is an exit to the north.",
         north = 1,
     }
     goblin: Entity = Enemy {
@@ -48,6 +48,43 @@ rooms_init :: proc() {
         attack_speed = 2,
     }
     rooms[3].entities["goblin"] = goblin
+}
+
+rooms_description :: proc(room_index: int, player: ^Player) -> string {
+    length := len(rooms[room_index].description)
+    for _, p in rooms[room_index].players {
+        if p.socket != player.socket {
+            length += len(p.name) + 10
+        }
+    }
+    for _, e in rooms[room_index].entities {
+        switch v in e {
+        case Item:
+            length += len(e.(Item).name) + 17
+        case Enemy:
+            length += len(e.(Enemy).name) + 17
+        }
+    }
+
+    builder := strings.builder_make_len_cap(0, length)
+    strings.write_string(&builder, rooms[room_index].description)
+    for _, p in rooms[room_index].players {
+        if p.socket != player.socket {
+            fmt.sbprintf(&builder, "\n%s is here.", p.name)
+        }
+    }
+    for _, e in rooms[room_index].entities {
+        switch v in e {
+        case Item:
+            fmt.sbprintf(&builder, "\nYou see a %s here.", e.(Item).name)
+        case Enemy:
+            fmt.sbprintf(&builder, "\nYou see a %s here.", e.(Enemy).name)
+        }
+    }
+    final_string := strings.to_string(builder)
+    fmt.println(final_string)
+    strings.builder_destroy(&builder)
+    return final_string
 }
 
 rooms_send :: proc(player: ^Player, message: string) {
@@ -82,5 +119,5 @@ rooms_move :: proc(player: ^Player, direction: int) -> string {
     rooms[next_room_index].players[player.name] = player
     message = fmt.aprintf("%s enters the room", player.name)
     rooms_send(player, message)
-    return strings.clone(rooms[next_room_index].description)
+    return rooms_description(next_room_index, player)
 }
