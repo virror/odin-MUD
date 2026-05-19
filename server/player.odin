@@ -19,9 +19,11 @@ Player :: struct {
     max_hp: int,
     hp: int,
     damage: int,
+    defense: int,
     attack_speed: int,
     experience: int,
     inventory: [10]int,
+    equipment: [6]int,
 }
 
 players: map[i64]Player
@@ -34,11 +36,15 @@ players_create :: proc() -> Player {
 		max_hp = 100,
 		hp = 100,
 		damage = 10,
+        defense = 0,
         attack_speed = 1,
         experience = 0,
 	}
     for i in 0..<10 {
         player.inventory[i] = -1
+    }
+    for i in 0..<6 {
+        player.equipment[i] = -1
     }
     return player
 }
@@ -97,4 +103,35 @@ players_inv_add :: proc(player: ^Player, item_index: int) -> bool {
         }
     }
     return false
+}
+
+players_equip_get :: proc(player: ^Player, slot: int) -> string {
+    if slot < 0 || slot >= 6 {
+        return "None"
+    }
+    if player.equipment[slot] != -1 {
+        return Items[player.equipment[slot]].name
+    } else {
+        return "None"
+    }
+}
+
+players_get_damage :: proc(player: ^Player) -> int {
+    damage := player.damage
+    item_index := player.equipment[0]
+    if item_index != -1 {
+        damage += Items[item_index].stat
+    }
+    return damage
+}
+
+players_get_defense :: proc(player: ^Player) -> int {
+    defense := player.defense
+    for i in 1..<6 {
+        item_index := player.equipment[i]
+        if item_index != -1 {
+            defense += Items[item_index].stat
+        }
+    }
+    return defense
 }

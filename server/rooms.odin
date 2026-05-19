@@ -26,7 +26,7 @@ rooms_init :: proc() {
         south = 3,
     }
     stick: Entity = Item {index = 0}
-    rooms[1].entities["stick"] = stick
+    rooms[1].entities["Stick"] = stick
 
     rooms[2] = Room {
         description = "You are in a small room. There is an exit to the south.",
@@ -44,7 +44,7 @@ rooms_init :: proc() {
         damage = 5,
         attack_speed = 2,
     }
-    rooms[3].entities["goblin"] = goblin
+    rooms[3].entities["Goblin"] = goblin
 }
 
 rooms_description :: proc(room_index: int, player: ^Player) -> string {

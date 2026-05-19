@@ -20,6 +20,7 @@ input_init :: proc() {
     m["attack"] = input_attack
     m["examine"] = input_examine
     m["inventory"] = input_inventory
+    m["equip"] = input_equip
 }
 
 input_handle :: proc(sock: net.TCP_Socket, data: []u8) {
@@ -71,8 +72,14 @@ input_say :: proc(data: string, player: ^Player) -> string {
 }
 
 input_char :: proc(data: string, player: ^Player) -> string {
-    return fmt.aprintf("+------------------+\n| Name: %s\n| HP: %d/%d\n| Damage: %d\n| Attack Speed: %d\n| Experience: %d/1000\n+------------------+",
-        player.name, player.hp, player.max_hp, player.damage, player.attack_speed, player.experience)
+    return fmt.aprintf("+------------------+\n| Name: %s\n| HP: %d/%d\n| Damage: %d\n| Defense: %d\n| Attack Speed: %d\n| Experience: %d/1000\n+------------------+\n| Main hand: %s\n| Off hand: %s\n| Head: %s\n| Body: %s\n| Legs: %s\n| Feet: %s\n+------------------+",
+        player.name, player.hp, player.max_hp, players_get_damage(player), players_get_defense(player), player.attack_speed, player.experience,
+        players_equip_get(player, 0),
+        players_equip_get(player, 1),
+        players_equip_get(player, 2),
+        players_equip_get(player, 3),
+        players_equip_get(player, 4),
+        players_equip_get(player, 5))
 }
 
 input_take :: proc(data: string, player: ^Player) -> string {
@@ -160,4 +167,56 @@ input_inventory :: proc(data: string, player: ^Player) -> string {
     final_string := strings.clone(strings.to_string(builder))
     strings.builder_destroy(&builder)
     return final_string
+}
+
+input_equip :: proc(data: string, player: ^Player) -> string {
+    item_name, ok := strings.substring(data, 6, len(data))
+    if !ok {
+        return strings.clone("Usage: equip <item>")
+    }
+    item_index := -1
+    for i in 0..<10 {
+        if player.inventory[i] != -1 {
+            if Items[player.inventory[i]].name == item_name {
+                item_index = player.inventory[i]
+                break
+            }
+        }
+    }
+    if item_index == -1 {
+        return fmt.aprintf("You don't have a %s in your inventory.", item_name)
+    }
+    item_type := Items[item_index].type
+    equip_slot := -1
+    tmp_idx := -1
+    #partial switch item_type {
+    case Item_type.Weapon:
+        equip_slot = 0
+    case Item_type.Shield:
+        equip_slot = 1
+    case Item_type.Armor:
+        equip_slot = 2
+    case Item_type.Helmet:
+        equip_slot = 3
+    case Item_type.Pants:
+        equip_slot = 4
+    case Item_type.Boots:
+        equip_slot = 5
+    case:
+        return fmt.aprintf("You can't equip a %s.", Items[item_index].name)
+    }
+    if player.equipment[equip_slot] != -1 {
+        tmp_idx = player.equipment[equip_slot]
+    }
+    player.equipment[equip_slot] = item_index
+    for i in 0..<10 {
+        if player.inventory[i] == item_index {
+            player.inventory[i] = -1
+            break
+        }
+    }
+    if tmp_idx != -1 {
+        players_inv_add(player, tmp_idx)
+    }
+    return fmt.aprintf("You equip the %s.", Items[item_index].name)
 }

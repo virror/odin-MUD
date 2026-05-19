@@ -2,6 +2,16 @@ package main
 
 import "core:fmt"
 
+Item_type :: enum {
+    Weapon,
+    Shield,
+    Helmet,
+    Armor,
+    Pants,
+    Boots,
+    Consumable,
+}
+
 Entity :: union {
     Item,
     Enemy,
@@ -22,8 +32,15 @@ Enemy :: struct {
 Item_data :: struct {
     name: string,
     description: string,
+    type: Item_type,
+    stat: int,
 }
 
 Items: []Item_data = {
-    {name = "stick", description = "A simple stick. It looks like it could be used as a weapon."},
+    {
+        name = "Stick",
+        description = "A simple stick. It looks like it could be used as a weapon.",
+        type = Item_type.Weapon,
+        stat = 2,
+    },
 }
