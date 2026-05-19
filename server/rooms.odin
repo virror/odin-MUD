@@ -25,10 +25,7 @@ rooms_init :: proc() {
         north = 2,
         south = 3,
     }
-    stick: Entity = Item {
-        name = "Stick",
-        description = "A simple stick. It looks like it could be used as a weapon.",
-    }
+    stick: Entity = Item {index = 0}
     rooms[1].entities["stick"] = stick
 
     rooms[2] = Room {
@@ -60,9 +57,9 @@ rooms_description :: proc(room_index: int, player: ^Player) -> string {
     for _, e in rooms[room_index].entities {
         switch v in e {
         case Item:
-            length += len(e.(Item).name) + 17
+            length += len(Items[e.(Item).index].name) + 17
         case Enemy:
-            length += len(e.(Enemy).name) + 17
+            length += len(e.(Enemy).name) + 18
         }
     }
 
@@ -76,9 +73,9 @@ rooms_description :: proc(room_index: int, player: ^Player) -> string {
     for _, e in rooms[room_index].entities {
         switch v in e {
         case Item:
-            fmt.sbprintf(&builder, "\nYou see a %s here.", e.(Item).name)
+            fmt.sbprintf(&builder, "\nYou see a %s here.", Items[e.(Item).index].name)
         case Enemy:
-            fmt.sbprintf(&builder, "\nYou see a %s here.", e.(Enemy).name)
+            fmt.sbprintf(&builder, "\nThere is a %s here.", e.(Enemy).name)
         }
     }
     final_string := strings.clone(strings.to_string(builder))

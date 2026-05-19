@@ -21,12 +21,13 @@ Player :: struct {
     damage: int,
     attack_speed: int,
     experience: int,
+    inventory: [10]int,
 }
 
 players: map[i64]Player
 
 players_create :: proc() -> Player {
-    return Player {
+    player := Player {
 		name = "Tmp",
 		current_room = 1,
 		status = Player_status.Username,
@@ -36,6 +37,10 @@ players_create :: proc() -> Player {
         attack_speed = 1,
         experience = 0,
 	}
+    for i in 0..<10 {
+        player.inventory[i] = -1
+    }
+    return player
 }
 
 players_save :: proc(player: ^Player) {
@@ -82,4 +87,14 @@ players_load :: proc(player: ^Player) -> bool {
     delete(path)
     delete(data, context.allocator)
     return true
+}
+
+players_inv_add :: proc(player: ^Player, item_index: int) -> bool {
+    for i in 0..<10 {
+        if player.inventory[i] == -1 {
+            player.inventory[i] = item_index
+            return true
+        }
+    }
+    return false
 }

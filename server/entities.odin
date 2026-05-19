@@ -8,8 +8,7 @@ Entity :: union {
 }
 
 Item :: struct {
-    name: string,
-    description: string,
+    index: int,
 }
 
 Enemy :: struct {
@@ -18,4 +17,13 @@ Enemy :: struct {
     hp: int,
     damage: int,
     attack_speed: int,
+}
+
+Item_data :: struct {
+    name: string,
+    description: string,
+}
+
+Items: []Item_data = {
+    {name = "stick", description = "A simple stick. It looks like it could be used as a weapon."},
 }

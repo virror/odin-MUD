@@ -18,6 +18,8 @@ input_init :: proc() {
     m["char"] = input_char
     m["take"] = input_take
     m["attack"] = input_attack
+    m["examine"] = input_examine
+    m["inventory"] = input_inventory
 }
 
 input_handle :: proc(sock: net.TCP_Socket, data: []u8) {
@@ -61,7 +63,7 @@ input_west :: proc(data: string, player: ^Player) -> string {
 input_say :: proc(data: string, player: ^Player) -> string {
     msg, ok := strings.substring(data, 4, len(data))
     if !ok {
-        return "Usage: say <message>"
+        return strings.clone("Usage: say <message>")
     }
     message := fmt.aprintf("%s says: %s", player.name, msg)
     rooms_send(player, message)
@@ -76,11 +78,11 @@ input_char :: proc(data: string, player: ^Player) -> string {
 input_take :: proc(data: string, player: ^Player) -> string {
     entity_name, ok := strings.substring(data, 5, len(data))
     if !ok {
-        return "Usage: take <item>"
+        return strings.clone("Usage: take <item>")
     }
     current_room := rooms[player.current_room]
     entity, exists := current_room.entities[entity_name]
-    fmt.println(current_room)
+
     if !exists {
         return fmt.aprintf("There is no %s here.", entity_name)
     }
@@ -89,14 +91,18 @@ input_take :: proc(data: string, player: ^Player) -> string {
         return fmt.aprintf("You can't take the %s.", entity_name)
     }
 
+    if !players_inv_add(player, item.index) {
+        current_room.entities[entity_name] = item
+        return strings.clone("Your inventory is full.")
+    }
     delete_key(&current_room.entities, entity_name)
-    return fmt.aprintf("You take the %s.", item.name)
+    return fmt.aprintf("You take the %s.", Items[item.index].name)
 }
 
 input_attack :: proc(data: string, player: ^Player) -> string {
     entity_name, ok := strings.substring(data, 7, len(data))
     if !ok {
-        return "Usage: attack <enemy>"
+        return strings.clone("Usage: attack <enemy>")
     }
     current_room := rooms[player.current_room]
     entity, exists := current_room.entities[entity_name]
@@ -111,4 +117,47 @@ input_attack :: proc(data: string, player: ^Player) -> string {
         return fmt.aprintf("The %s is already dead.", entity_name)
     }
     return fmt.aprintf("You attack the %s. It has %d HP left.", entity_name, enemy.hp)
+}
+
+input_examine :: proc(data: string, player: ^Player) -> string {
+    entity_name, ok := strings.substring(data, 8, len(data))
+    if !ok {
+        return strings.clone("Usage: examine <entity>")
+    }
+    current_room := rooms[player.current_room]
+    entity, exists := current_room.entities[entity_name]
+    if !exists {
+        return fmt.aprintf("There is no %s here.", entity_name)
+    }
+    switch v in entity {
+    case Item:
+        item := entity.(Item)
+        return fmt.aprintf("%s", Items[item.index].description)
+    case Enemy:
+        enemy := entity.(Enemy)
+        return fmt.aprintf("%s", enemy.description)
+    case:
+        return strings.clone("You can't examine that.")
+    }
+}
+
+input_inventory :: proc(data: string, player: ^Player) -> string {
+    length := len("Your inventory:")
+    for i in 0..<10 {
+        if player.inventory[i] != -1 {
+            item_index := player.inventory[i]
+            length += len(Items[item_index].name) + 3
+        }
+    }
+    builder := strings.builder_make_len_cap(0, length)
+    strings.write_string(&builder, "Your inventory:")
+    for i in 0..<10 {
+        if player.inventory[i] != -1 {
+            item_index := player.inventory[i]
+            fmt.sbprintf(&builder, "\n- %s", Items[item_index].name)
+        }
+    }
+    final_string := strings.clone(strings.to_string(builder))
+    strings.builder_destroy(&builder)
+    return final_string
 }
