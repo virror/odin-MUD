@@ -81,8 +81,7 @@ rooms_description :: proc(room_index: int, player: ^Player) -> string {
             fmt.sbprintf(&builder, "\nYou see a %s here.", e.(Enemy).name)
         }
     }
-    final_string := strings.to_string(builder)
-    fmt.println(final_string)
+    final_string := strings.clone(strings.to_string(builder))
     strings.builder_destroy(&builder)
     return final_string
 }
