@@ -23,15 +23,15 @@ input_init :: proc() {
     m["equip"] = input_equip
 }
 
-input_handle :: proc(sock: net.TCP_Socket, data: []u8) {
-    fmt.printfln("Received string: %s", string(data))
-    command := strings.split(string(data), " ")[0]
+input_handle :: proc(sock: net.TCP_Socket, data: string) {
+    fmt.printfln("Received string: %s", data)
+    command := strings.split(data, " ")[0]
     elem, ok := m[command]
     if(!ok) {
         send_msg(sock, "Invalid command")
         return
     }
-    msg := elem(string(data), &players[i64(sock)])
+    msg := elem(data, &players[i64(sock)])
     send_msg(sock, msg)
     delete(msg)
 }

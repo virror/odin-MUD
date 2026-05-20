@@ -11,7 +11,6 @@ handle_msg :: proc(sock: net.TCP_Socket) {
 	for {
 		bytes_recv, err_recv := net.recv_tcp(sock, buffer[:])
 		if err_recv != nil {
-			fmt.println("Failed to receive data")
 			fmt.println(err_recv)
 			break
 		}
