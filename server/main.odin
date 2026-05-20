@@ -24,12 +24,15 @@ handle_msg :: proc(sock: net.TCP_Socket) {
 
 	for {
 		bytes_recv, err_recv := net.recv_tcp(sock, buffer[:])
+		player := &players[i64(sock)]
+		
 		if err_recv != nil {
 			fmt.println(err_recv)
+			players_leave(player, i64(sock))
+			net.close(sock)
 			return
 		}
 		input := string(buffer[:bytes_recv])
-		player := &players[i64(sock)]
 
 		switch player.status {
 		case Player_status.Username:
@@ -50,11 +53,8 @@ handle_msg :: proc(sock: net.TCP_Socket) {
 		case Player_status.Quitting:
 			if input == "yes" {
 				send_msg(sock, "Goodbye!")
+				players_leave(player, i64(sock))
 				net.close(sock)
-				players_save(player)
-				delete(players[i64(sock)].name)
-				delete_key(&rooms[player.current_room].players, player.name)
-				delete_key(&players, i64(sock))
 				return
 			} else if input == "no" {
 				send_msg(sock, "Welcome back!")

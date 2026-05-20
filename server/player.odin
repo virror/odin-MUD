@@ -135,3 +135,11 @@ players_get_defense :: proc(player: ^Player) -> int {
     }
     return defense
 }
+
+players_leave :: proc(player: ^Player, sock: i64) {
+    players_save(player)
+    rooms_send(player, fmt.aprintf("%s has left the game.", player.name))
+    delete(players[sock].name)
+    delete_key(&rooms[player.current_room].players, player.name)
+    delete_key(&players, sock)
+}
