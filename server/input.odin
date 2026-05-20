@@ -73,13 +73,13 @@ input_say :: proc(data: string, player: ^Player) -> string {
 
 input_char :: proc(data: string, player: ^Player) -> string {
     return fmt.aprintf("+------------------+\n| Name: %s\n| HP: %d/%d\n| Damage: %d\n| Defense: %d\n| Attack Speed: %d\n| Experience: %d/1000\n+------------------+\n| Main hand: %s\n| Off hand: %s\n| Head: %s\n| Body: %s\n| Legs: %s\n| Feet: %s\n+------------------+",
-        player.name, player.hp, player.max_hp, players_get_damage(player), players_get_defense(player), player.attack_speed, player.experience,
-        players_equip_get(player, 0),
-        players_equip_get(player, 1),
-        players_equip_get(player, 2),
-        players_equip_get(player, 3),
-        players_equip_get(player, 4),
-        players_equip_get(player, 5))
+        player.name, player.hp, player.max_hp, player_get_damage(player), player_get_defense(player), player.attack_speed, player.experience,
+        player_equip_get(player, 0),
+        player_equip_get(player, 1),
+        player_equip_get(player, 2),
+        player_equip_get(player, 3),
+        player_equip_get(player, 4),
+        player_equip_get(player, 5))
 }
 
 input_take :: proc(data: string, player: ^Player) -> string {
@@ -98,7 +98,7 @@ input_take :: proc(data: string, player: ^Player) -> string {
         return fmt.aprintf("You can't take the %s.", entity_name)
     }
 
-    if !players_inv_add(player, item.index) {
+    if !player_inv_add(player, item.index) {
         current_room.entities[entity_name] = item
         return strings.clone("Your inventory is full.")
     }
@@ -216,7 +216,7 @@ input_equip :: proc(data: string, player: ^Player) -> string {
         }
     }
     if tmp_idx != -1 {
-        players_inv_add(player, tmp_idx)
+        player_inv_add(player, tmp_idx)
     }
     return fmt.aprintf("You equip the %s.", Items[item_index].name)
 }

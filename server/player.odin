@@ -28,7 +28,7 @@ Player :: struct {
 
 players: map[i64]Player
 
-players_create :: proc() -> Player {
+player_create :: proc() -> Player {
     player := Player {
 		name = "Tmp",
 		current_room = 1,
@@ -49,7 +49,7 @@ players_create :: proc() -> Player {
     return player
 }
 
-players_save :: proc(player: ^Player) {
+player_save :: proc(player: ^Player) {
     if(!os.exists("saves")) {
         os.make_directory("saves")
     }
@@ -71,7 +71,7 @@ players_save :: proc(player: ^Player) {
     delete(path)
 }
 
-players_load :: proc(player: ^Player) -> bool {
+player_load :: proc(player: ^Player) -> bool {
     path := fmt.aprintf("/saves/%s", player.name)
     file, err := os.open(path, os.O_RDONLY)
     if err != nil {
@@ -95,7 +95,7 @@ players_load :: proc(player: ^Player) -> bool {
     return true
 }
 
-players_inv_add :: proc(player: ^Player, item_index: int) -> bool {
+player_inv_add :: proc(player: ^Player, item_index: int) -> bool {
     for i in 0..<10 {
         if player.inventory[i] == -1 {
             player.inventory[i] = item_index
@@ -105,7 +105,7 @@ players_inv_add :: proc(player: ^Player, item_index: int) -> bool {
     return false
 }
 
-players_equip_get :: proc(player: ^Player, slot: int) -> string {
+player_equip_get :: proc(player: ^Player, slot: int) -> string {
     if slot < 0 || slot >= 6 {
         return "None"
     }
@@ -116,7 +116,7 @@ players_equip_get :: proc(player: ^Player, slot: int) -> string {
     }
 }
 
-players_get_damage :: proc(player: ^Player) -> int {
+player_get_damage :: proc(player: ^Player) -> int {
     damage := player.damage
     item_index := player.equipment[0]
     if item_index != -1 {
@@ -125,7 +125,7 @@ players_get_damage :: proc(player: ^Player) -> int {
     return damage
 }
 
-players_get_defense :: proc(player: ^Player) -> int {
+player_get_defense :: proc(player: ^Player) -> int {
     defense := player.defense
     for i in 1..<6 {
         item_index := player.equipment[i]
@@ -136,8 +136,8 @@ players_get_defense :: proc(player: ^Player) -> int {
     return defense
 }
 
-players_leave :: proc(player: ^Player, sock: i64) {
-    players_save(player)
+player_leave :: proc(player: ^Player, sock: i64) {
+    player_save(player)
     rooms_send(player, fmt.aprintf("%s has left the game.", player.name))
     delete(players[sock].name)
     delete_key(&rooms[player.current_room].players, player.name)

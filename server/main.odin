@@ -20,7 +20,7 @@ handle_msg :: proc(sock: net.TCP_Socket) {
 	buffer: [256]u8
 
 	send_msg(sock, "Welcome to the MUD! Please enter your username:")
-	players[i64(sock)] = players_create()
+	players[i64(sock)] = player_create()
 
 	for {
 		bytes_recv, err_recv := net.recv_tcp(sock, buffer[:])
@@ -28,7 +28,7 @@ handle_msg :: proc(sock: net.TCP_Socket) {
 		
 		if err_recv != nil {
 			fmt.println(err_recv)
-			players_leave(player, i64(sock))
+			player_leave(player, i64(sock))
 			net.close(sock)
 			return
 		}
@@ -37,7 +37,7 @@ handle_msg :: proc(sock: net.TCP_Socket) {
 		switch player.status {
 		case Player_status.Username:
 			player.name = strings.clone(input)
-			players_load(player)
+			player_load(player)
 			send_msg(sock, "Enter password:")
 			player.socket = i64(sock)
 			player.status = Player_status.Password
@@ -53,7 +53,7 @@ handle_msg :: proc(sock: net.TCP_Socket) {
 		case Player_status.Quitting:
 			if input == "yes" {
 				send_msg(sock, "Goodbye!")
-				players_leave(player, i64(sock))
+				player_leave(player, i64(sock))
 				net.close(sock)
 				return
 			} else if input == "no" {
